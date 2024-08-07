@@ -1,83 +1,71 @@
-import os
-import getpass
-import subprocess
-from dash import dcc, html, Dash
-from dash.dependencies import Input, Output
+import dash
+from dash import dcc, html
+from dash.dependencies import Input, Output, State
 from datetime import datetime, timedelta
-import webbrowser
-import threading
+import dash_bootstrap_components as dbc
 
-# Funktion zur Ermittlung der Remote-Benutzer
-def get_remote_users():
-    try:
-        result = subprocess.run(['query', 'user'], capture_output=True, text=True, check=True)
-        output = result.stdout
-        return output
-    except subprocess.CalledProcessError as e:
-        return f"Fehler beim Abrufen der Benutzer: {e}"
+# Erstellen Sie die Dash-App und fügen Sie ein Bootstrap-Theme hinzu
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-# Benutzername des aktuellen Benutzers abrufen
-benutzername = os.getlogin()
-benutzername_01 = getpass.getuser()
-
-# Dash App erstellen
-app = Dash(__name__)
-server = app.server
-# Startzeit speichern
-start_time = datetime.now()
-
-# Layout der Dash App
+# Layout der Dash-App
 app.layout = html.Div([
-    html.H1(id='local-user', style={'text-align': 'center', 'color': 'black', 'fontSize': '18px'}),
-    html.H1(id='getpass-user', style={'text-align': 'center', 'color': 'black', 'fontSize': '18px'}),
-    html.H1(id='remote-users', style={'text-align': 'center', 'color': 'black', 'fontSize': '18px'}),
-    html.H1(id='time', style={'text-align': 'center', 'color': 'black', 'fontSize': '18px'}),
+    html.H1("Timer für Namen"),
+    dcc.RadioItems(
+        id='name-radioitems',
+        options=[
+            {'label': 'Name 1', 'value': 'Name1'},
+            {'label': 'Name 2', 'value': 'Name2'},
+            {'label': 'Name 3', 'value': 'Name3'},
+            {'label': 'Name 4', 'value': 'Name4'},
+            {'label': 'Name 5', 'value': 'Name5'}
+        ],
+        value='Name1'  # Standardwert
+    ),
+    html.H3("Verstrichene Zeit seit Auswahl (Ablauf von 2h):"),
+    html.Div(id='timer-display'),
+    dbc.Progress(id='progress-bar', value=0, max=100, striped=True, animated=True, style={"height": "30px"}),
     dcc.Interval(
         id='interval-component',
-        interval=1*1000,  # 30 Sekunden in Millisekunden
+        interval=1000,  # 1 Sekunde in Millisekunden
         n_intervals=0
     )
 ])
 
-# Callback-Funktion für die Aktualisierung der Benutzerinformationen
+# Globale Variable zum Speichern der Startzeit
+start_time = None
+two_hours = timedelta(hours=2)
+
+# Callback-Funktion zum Starten des Timers bei Änderung des Namens
 @app.callback(
-    [Output('local-user', 'children'),
-     Output('getpass-user', 'children'),
-     Output('remote-users', 'children'),
-     Output('time', 'children')],
-    [Input('interval-component', 'n_intervals')]
+    [Output('timer-display', 'children'),
+     Output('progress-bar', 'value')],
+    [Input('interval-component', 'n_intervals')],
+    [State('name-radioitems', 'value')]
 )
-def update_users(n_intervals):
-    # Berechnung der verstrichenen Zeit seit dem Start
+def update_timer(n_intervals, selected_name):
+    global start_time
+
+    if n_intervals == 0 or start_time is None:
+        return "00:00:00", 0
+
+    # Berechnung der verstrichenen Zeit
     elapsed_time = datetime.now() - start_time
-    elapsed_seconds = int(elapsed_time.total_seconds())
-    elapsed_str = str(timedelta(seconds=elapsed_seconds))
-    
-    # Aktualisierung der Benutzerinformationen
-    remote_users = get_remote_users()
-    return (
-        f'Lokaler Benutzer: {benutzername}',
-        f'Benutzer durch getpass: {benutzername_01}',
-        f'Remote-Benutzer:\n{remote_users}',
-        f'Laufzeit: {elapsed_str}'
-    )
+    elapsed_str = str(elapsed_time).split('.')[0]  # Formatieren der Zeit
 
-# Funktion zum Starten des Dash-Servers und Öffnen des Browsers
-def run_server():
-    app.run_server(debug=True, use_reloader=False)
+    # Berechnung des Fortschritts
+    progress_percentage = min((elapsed_time / two_hours) * 100, 100)
 
-# Die URL der Dash-Anwendung
-def open_browser():
-    import time
-    time.sleep(1)  # Warten, bis der Server vollständig gestartet ist
-    webbrowser.open("http://127.0.0.1:8050/")
+    return elapsed_str, progress_percentage
 
-if __name__ == '__main__':
-    # Starte den Dash-Server in einem separaten Thread
-    server_thread = threading.Thread(target=run_server)
-    server_thread.start()
-    
-    # Öffne den Browser
-   # open_browser()
+@app.callback(
+    Output('interval-component', 'n_intervals'),
+    [Input('name-radioitems', 'value')]
+)
+def start_timer(selected_name):
+    global start_time
+    start_time = datetime.now()  # Startzeit setzen
+    return 0  # Reset the interval component
+
+# Starten Sie die Dash-App
 if __name__ == '__main__':
     app.run_server(debug=True)
