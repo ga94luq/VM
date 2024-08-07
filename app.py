@@ -6,7 +6,7 @@ import dash_bootstrap_components as dbc
 
 # Erstellen Sie die Dash-App und fügen Sie ein Bootstrap-Theme hinzu
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-
+server = app.server
 # Layout der Dash-App
 app.layout = html.Div([
     html.H1("Timer für Namen"),
