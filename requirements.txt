@@ -1,11 +1,2 @@
-dash
-pandas
-plotly 
-gunicorn
-html
-Input
-Output
-State
-datetime
-timedelta
-dash_bootstrap_components
+dash==2.1.0
+dash-bootstrap-components==1.0.0
