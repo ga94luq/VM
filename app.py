@@ -22,7 +22,7 @@ benutzername_01 = getpass.getuser()
 
 # Dash App erstellen
 app = Dash(__name__)
-
+server = app.server
 # Startzeit speichern
 start_time = datetime.now()
 
@@ -78,4 +78,6 @@ if __name__ == '__main__':
     server_thread.start()
     
     # Öffne den Browser
-    open_browser()
+   # open_browser()
+if __name__ == '__main__':
+    app.run_server(debug=True)
