@@ -8,4 +8,4 @@ Output
 State
 datetime
 timedelta
-dash_bootstrap_components as dbc
+dash_bootstrap_components
