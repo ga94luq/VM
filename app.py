@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import dash_bootstrap_components as dbc
 
 # Erstellen Sie die Dash-App und fügen Sie ein Bootstrap-Theme hinzu
-app = dash.Dash(__name__) #, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 
 # Layout der Dash-App
@@ -33,7 +33,7 @@ app.layout = html.Div([
     ),
     html.H3("Verstrichene Zeit seit Auswahl:"),
     html.Div(id='timer-display'),
-    dbc.Progress(id='progress-bar', value=0, max=100, striped=True, animated=True, style={"height": "30px"}),
+    dbc.Progress(id='progress-bar', value=0, max=100, striped=True, animated=True, style={"height": "30px", 'width':'1000px'}),
     dcc.Interval(
         id='interval-component',
         interval=1000,  # 1 Sekunde in Millisekunden
