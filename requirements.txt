@@ -1,7 +1,6 @@
 dash
 gunicorn
 dcc
-html
 Input
 Output
 State
