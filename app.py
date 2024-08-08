@@ -26,15 +26,17 @@ app.layout = html.Div([
     html.H3("Wählen Sie die Zeitspanne (.5 bis 6 Stunden):", style={'font-size': '20px'}),
     dcc.Slider(
         id='time-slider',
-        min=.5,
+        min=.01,
         max=6,
         step=0.1,
         value=2,  # Start value in hours
-        marks={i: f'{i}h' for i in range(1, 7)}
+        marks={i: f'{i}h' for i in range(1, 7)},
+        tooltip={"placement": "bottom", "always_visible": True}
     ),
+    html.Div(id='slider-output', style={'font-size': '20px', 'marginTop': '10px'}),
     html.H3("Verstrichene Zeit seit Auswahl:", style={'font-size': '20px'}),
     html.Div(id='timer-display'),
-    dbc.Progress(id='progress-bar', value=0, max=100, striped=True, animated=True, style={"height": "30px", 'width':'1000px', 'marginLeft': '20px'}),
+    dbc.Progress(id='progress-bar', value=0, max=100, striped=True, animated=True, style={"height": "30px", 'width': '1000px', 'marginLeft': '20px'}),
     dcc.Interval(
         id='interval-component',
         interval=1000,  # 1 second in milliseconds
@@ -95,6 +97,18 @@ def start_timer(selected_name):
     if selected_name != 'None':
         start_time = datetime.now()  # Set the start time
     return 0  # Reset the interval component
+
+# Callback function to update the slider output display
+@app.callback(
+    Output('slider-output', 'children'),
+    [Input('time-slider', 'value')]
+)
+def update_slider_output(value):
+    if value < 1:
+        minutes = int(value * 60)
+        return f"Ausgewählte Zeit: {minutes} Minuten"
+    else:
+        return f"Ausgewählte Zeit: {value:.1f} Stunden"
 
 # Start the Dash app
 if __name__ == '__main__':
