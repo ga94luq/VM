@@ -1,5 +1,4 @@
 dash
-dash-bootstrap-components
 gunicorn
 dcc
 html
@@ -8,4 +7,3 @@ Output
 State
 datetime
 timedelta
-
