@@ -23,7 +23,7 @@ app.layout = html.Div([
         ],
         value='None'  # Default value
     ),
-    html.H3("Wählen Sie die Zeitspanne (.5 bis 6 Stunden):", style={'font-size': '20px'}),
+    html.H3("Wählen Sie die Zeitspanne:", style={'font-size': '20px'}),
     dcc.Slider(
         id='time-slider',
         min=.01,
